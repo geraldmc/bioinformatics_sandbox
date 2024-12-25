@@ -48,6 +48,7 @@ def efetch(db, **keywords):
     response.raise_for_status()
   except requests.exceptions.RequestException as e:
     print("Request failed:", str(e))
+  return response
 
 def esummary(**keywords):
   '''This function retrieves document summaries from a list of primary IDs or
@@ -57,11 +58,13 @@ def esummary(**keywords):
   variables = {}
   variables.update(keywords)
   request = _construct(base_cgi, variables)
+  #print(request)
   try:
     response = requests.get(base_cgi, request)  
     response.raise_for_status()
   except requests.exceptions.RequestException as e:
     print("Request failed:", str(e))
+  return response
 
 def einfo(**keywords):
   '''This function returns a summary of the Entrez databases as a results handle.
@@ -70,11 +73,13 @@ def einfo(**keywords):
   variables = {}
   variables.update(keywords)
   request = _construct(base_cgi, variables)
+  print(request)
   try:
     response = requests.get(base_cgi, request)  
     response.raise_for_status()
   except requests.exceptions.RequestException as e:
     print("Request failed:", str(e))
+  return response
 
 def elink(**keywords):
   '''This function checks for the existence of an external or Related Articles
@@ -90,6 +95,7 @@ def elink(**keywords):
     response.raise_for_status()
   except requests.exceptions.RequestException as e:
     print("Request failed:", str(e))
+  return response
 
 def epost(db, **keywords):
   '''Posts a file containing a list of primary IDs for future use.
@@ -103,6 +109,8 @@ def epost(db, **keywords):
     response.raise_for_status()
   except requests.exceptions.RequestException as e:
     print("Request failed:", str(e))
+  return response 
+    
 def _get_params(params, join_ids=True):
   pass
 
@@ -140,15 +148,8 @@ def _construct(base_cgi, params=None, join_ids=True):
 
   return params
 
-def _process(request):
-  return request
-
-def test_handle_exception(resp):
- try:
-    resp.raise_for_status()
- except requests.exceptions.RequestException as e:
-    print("Request failed:", str(e))
-
 if __name__ == "__main__":
   resp = esearch(db="pubmed", retmax=5, term="cancer[mesh] epigenomics[mesh] 2024[pdat]")
-  resp.json()
+  querykey = resp.json()['esearchresult']['querykey']
+  webenv = resp.json()['esearchresult']['webenv']
+  resp_summary = esummary(db="pubmed", retmax=1, query_key=querykey, webenv=webenv)

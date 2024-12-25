@@ -7,8 +7,7 @@ from urllib.parse import urlencode
 from dotenv import load_dotenv, dotenv_values 
 
 # ------------------------------------------------------------------------------
-# NCBI/Entrez - Entrez Functions as Function Objects
-# Based on Biopython but uses the Requests lib.
+# NCBI/Entrez - Entrez functions based on Biopython but using the Requests lib.
 # NCBI defaults to XML. Try to use json wherever possible.
 # ------------------------------------------------------------------------------
 
@@ -29,7 +28,11 @@ def esearch(db, term, **keywords):
   variables = {"db": db, "term": term}
   variables.update(keywords)
   request = _construct(base_cgi, variables)
-  response = requests.get(base_cgi, request)  
+  try:
+    response = requests.get(base_cgi, request)  
+    response.raise_for_status()
+  except requests.exceptions.RequestException as e:
+    print("Request failed:", str(e))
   return response
 
 def efetch(db, **keywords):
@@ -40,7 +43,11 @@ def efetch(db, **keywords):
   variables = {"db": db}
   variables.update(keywords)
   request = _construct(base_cgi, variables)
-  return _process(request)
+  try:
+    response = requests.get(base_cgi, request)  
+    response.raise_for_status()
+  except requests.exceptions.RequestException as e:
+    print("Request failed:", str(e))
 
 def esummary(**keywords):
   '''This function retrieves document summaries from a list of primary IDs or
@@ -50,7 +57,11 @@ def esummary(**keywords):
   variables = {}
   variables.update(keywords)
   request = _construct(base_cgi, variables)
-  return _process(request)
+  try:
+    response = requests.get(base_cgi, request)  
+    response.raise_for_status()
+  except requests.exceptions.RequestException as e:
+    print("Request failed:", str(e))
 
 def einfo(**keywords):
   '''This function returns a summary of the Entrez databases as a results handle.
@@ -59,7 +70,11 @@ def einfo(**keywords):
   variables = {}
   variables.update(keywords)
   request = _construct(base_cgi, variables)
-  return _process(request)
+  try:
+    response = requests.get(base_cgi, request)  
+    response.raise_for_status()
+  except requests.exceptions.RequestException as e:
+    print("Request failed:", str(e))
 
 def elink(**keywords):
   '''This function checks for the existence of an external or Related Articles
@@ -70,7 +85,11 @@ def elink(**keywords):
   variables = {}
   variables.update(keywords)
   request = _construct(base_cgi, variables)
-  return _process(request)
+  try:
+    response = requests.get(base_cgi, request)  
+    response.raise_for_status()
+  except requests.exceptions.RequestException as e:
+    print("Request failed:", str(e))
 
 def epost(db, **keywords):
   '''Posts a file containing a list of primary IDs for future use.
@@ -79,8 +98,11 @@ def epost(db, **keywords):
   variables = {"db": db}
   variables.update(keywords)
   request = _construct(base_cgi, variables)
-  return _process(request)
-
+  try:
+    response = requests.get(base_cgi, request)  
+    response.raise_for_status()
+  except requests.exceptions.RequestException as e:
+    print("Request failed:", str(e))
 def _get_params(params, join_ids=True):
   pass
 
@@ -110,6 +132,7 @@ def _construct(base_cgi, params=None, join_ids=True):
   params.setdefault("tool", tool)
   params.setdefault("email", email)
   params.setdefault("api_key", api_key)
+  params.setdefault("usehistory", 'y')
   params.setdefault("retmode", 'json')
 
   if join_ids and "id" in params:
@@ -120,9 +143,12 @@ def _construct(base_cgi, params=None, join_ids=True):
 def _process(request):
   return request
 
-if __name__ == "__main__":
-   #resp = esearch(db="nucleotide", retmax=2, idtype="acc",term="opuntia[ORGN] accD 2007[Publication Date]")
-   resp = esearch(db="pubmed", retmax=5, idtype="acc",term="epigenome[mesh] plant[mesh] 2024[pdat]")
-   resp.json()
+def test_handle_exception(resp):
+ try:
+    resp.raise_for_status()
+ except requests.exceptions.RequestException as e:
+    print("Request failed:", str(e))
 
-# asthma[mesh]+AND+leukotrienes[mesh]+AND+2024[pdat]';
+if __name__ == "__main__":
+  resp = esearch(db="pubmed", retmax=5, term="cancer[mesh] epigenomics[mesh] 2024[pdat]")
+  resp.json()

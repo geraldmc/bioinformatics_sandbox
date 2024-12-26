@@ -158,10 +158,7 @@ def get_DOI_urls(resp):
   pmid_list = []
   if len(pmids) == 0:
     pass
-  if len(pmids) == 1:
-    elocationid =  resp.json()['result'][pmids[0]]['elocationid']
-    pmid_list.append(DOI_URL + elocationid.split(" ")[1])
-  elif len(pmids) > 1:
+  if len(pmids) >= 1:
     for pmid in pmids:
       elocationid =  resp.json()['result'][pmid]['elocationid']
       pmid_list.append(DOI_URL + elocationid.split(" ")[1])
@@ -174,6 +171,6 @@ if __name__ == "__main__":
   resp = esearch(db="pubmed", retmax=5, term="cancer[mesh] epigenomics[mesh] 2024[pdat]")
   querykey = resp.json()['esearchresult']['querykey']
   webenv = resp.json()['esearchresult']['webenv']
-  resp_summary = esummary(db="pubmed", retmax=2, query_key=querykey, webenv=webenv)
+  resp_summary = esummary(db="pubmed", retmax=3, query_key=querykey, webenv=webenv)
   urls = get_DOI_urls(resp_summary)
   print(urls)

@@ -182,20 +182,32 @@ def get_PUBMED_urls(resp):
     pass
   return pmid_list
 
-
 def get_BeautifulSoup(url):
   response = requests.get(url)
-
   if response.status_code == 200:
       html = response.content
-
   soup = BeautifulSoup(html, 'html.parser')
   return soup
 
 if __name__ == "__main__":
-  resp = esearch(db="pubmed", retmax=5, term="cancer[mesh] epigenomics[mesh] 2024[pdat]")
+  ''' Run Esearch, retrieve from Esummary, get PubMed urls.
+      For each url, parse and save the Title and Abstract. 
+  '''
+  resp = esearch(db="pubmed", retmax=5, term="plants[mesh] epigenomics[mesh] 2024[pdat]")
   querykey = resp.json()['esearchresult']['querykey']
   webenv = resp.json()['esearchresult']['webenv']
   resp_summary = esummary(db="pubmed", retmax=3, query_key=querykey, webenv=webenv)
   urls = get_PUBMED_urls(resp_summary)
+  print("\nPubmed Urls:")
   print(urls)
+
+  for url in urls:
+    response = requests.get(url)
+    html = response.content
+    soup = BeautifulSoup(html, 'html.parser')
+    _title = soup.find("h1", class_="heading-title")
+    print('\n Title: ' + _title.text.strip())
+    _abstract = soup.find("div", class_="abstract-content selected")
+    print('\n' + _abstract.text.strip())
+    print()
+    time.sleep(0.37) # don't abuse NCBI. 

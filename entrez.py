@@ -153,11 +153,15 @@ def get_DOI_urls(resp):
   '''Take a response object as input, return a list of qualified DOI url[s].
   '''
   DOI_URL = 'https://doi.org/'
+  pmids = []
+  try:
+    pmids = resp.json()['result']['uids']
+  except KeyError:
+    pass
 
-  pmids = resp.json()['result']['uids']
   pmid_list = []
   if len(pmids) == 0:
-    pass
+    print("No IDs returned from Pubmed.")
   if len(pmids) >= 1:
     for pmid in pmids:
       elocationid =  resp.json()['result'][pmid]['elocationid']
@@ -170,11 +174,14 @@ def get_PUBMED_urls(resp):
   '''Take a response object as input, return a list of qualified Pubmed url[s].
   '''
   PM_url = 'https://www.ncbi.nlm.nih.gov/pubmed/'
-
-  pmids = resp.json()['result']['uids']
+  pmids = []
+  try:
+    pmids = resp.json()['result']['uids']
+  except KeyError:
+    pass
   pmid_list = []
   if len(pmids) == 0:
-    pass
+    print("No IDs returned from Pubmed.")
   if len(pmids) >= 1:
     for pmid in pmids:
       pmid_list.append(PM_url + pmid)
@@ -193,7 +200,7 @@ if __name__ == "__main__":
   ''' Run Esearch, retrieve from Esummary, get PubMed urls.
       For each url, parse and save the Title and Abstract. 
   '''
-  resp = esearch(db="pubmed", retmax=5, term="plants[mesh] epigenomics[mesh] 2024[pdat]")
+  resp = esearch(db="pubmed", retmax=5, term="plants[mesh] epigenetics[mesh] 2024[pdat]")
   querykey = resp.json()['esearchresult']['querykey']
   webenv = resp.json()['esearchresult']['webenv']
   resp_summary = esummary(db="pubmed", retmax=3, query_key=querykey, webenv=webenv)
@@ -202,9 +209,7 @@ if __name__ == "__main__":
   print(urls)
 
   for url in urls:
-    response = requests.get(url)
-    html = response.content
-    soup = BeautifulSoup(html, 'html.parser')
+    soup = get_BeautifulSoup(url)
     _title = soup.find("h1", class_="heading-title")
     print('\n Title: ' + _title.text.strip())
     _abstract = soup.find("div", class_="abstract-content selected")

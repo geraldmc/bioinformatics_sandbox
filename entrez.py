@@ -3,6 +3,7 @@ import time
 import warnings
 import json
 import requests
+from bs4 import BeautifulSoup
 from urllib.parse import urlencode
 from dotenv import load_dotenv, dotenv_values 
 
@@ -130,7 +131,7 @@ def _format_ids(ids):
     return ",".join(map(str, ids))
 
 def _has_api_key(request):
-  pass
+  return "api_key=" in request.full_url
 
 def _construct(base_cgi, params=None, join_ids=True):
   '''
@@ -148,8 +149,31 @@ def _construct(base_cgi, params=None, join_ids=True):
 
   return params
 
+def get_DOI_urls(resp):
+  '''Take a response object as input, return a list of qualified DOI url[s].
+  '''
+  DOI_URL = 'https://doi.org/'
+
+  pmids = resp.json()['result']['uids']
+  pmid_list = []
+  if len(pmids) == 0:
+    pass
+  if len(pmids) == 1:
+    elocationid =  resp.json()['result'][pmids[0]]['elocationid']
+    pmid_list.append(DOI_URL + elocationid.split(" ")[1])
+  elif len(pmids) > 1:
+    for pmid in pmids:
+      elocationid =  resp.json()['result'][pmid]['elocationid']
+      pmid_list.append(DOI_URL + elocationid.split(" ")[1])
+  else:
+    pass
+
+  return pmid_list
+
 if __name__ == "__main__":
   resp = esearch(db="pubmed", retmax=5, term="cancer[mesh] epigenomics[mesh] 2024[pdat]")
   querykey = resp.json()['esearchresult']['querykey']
   webenv = resp.json()['esearchresult']['webenv']
-  resp_summary = esummary(db="pubmed", retmax=1, query_key=querykey, webenv=webenv)
+  resp_summary = esummary(db="pubmed", retmax=2, query_key=querykey, webenv=webenv)
+  urls = get_DOI_urls(resp_summary)
+  print(urls)

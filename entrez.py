@@ -14,7 +14,7 @@ from dotenv import load_dotenv, dotenv_values
 
 load_dotenv() # get env vars
 
-email = 'gerald.mccollam@gmail.com'
+email = os.getenv("email")
 max_tries = 3
 sleep_between_tries = 15
 tool = "gene_genie"
@@ -197,5 +197,5 @@ if __name__ == "__main__":
   querykey = resp.json()['esearchresult']['querykey']
   webenv = resp.json()['esearchresult']['webenv']
   resp_summary = esummary(db="pubmed", retmax=3, query_key=querykey, webenv=webenv)
-  urls = get_DOI_urls(resp_summary)
+  urls = get_PUBMED_urls(resp_summary)
   print(urls)

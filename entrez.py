@@ -164,8 +164,33 @@ def get_DOI_urls(resp):
       pmid_list.append(DOI_URL + elocationid.split(" ")[1])
   else:
     pass
-
   return pmid_list
+
+def get_PUBMED_urls(resp):
+  '''Take a response object as input, return a list of qualified Pubmed url[s].
+  '''
+  PM_url = 'https://www.ncbi.nlm.nih.gov/pubmed/'
+
+  pmids = resp.json()['result']['uids']
+  pmid_list = []
+  if len(pmids) == 0:
+    pass
+  if len(pmids) >= 1:
+    for pmid in pmids:
+      pmid_list.append(PM_url + pmid)
+  else:
+    pass
+  return pmid_list
+
+
+def get_BeautifulSoup(url):
+  response = requests.get(url)
+
+  if response.status_code == 200:
+      html = response.content
+
+  soup = BeautifulSoup(html, 'html.parser')
+  return soup
 
 if __name__ == "__main__":
   resp = esearch(db="pubmed", retmax=5, term="cancer[mesh] epigenomics[mesh] 2024[pdat]")

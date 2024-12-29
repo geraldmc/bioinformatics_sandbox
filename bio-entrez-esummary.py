@@ -45,8 +45,8 @@ def summary(id_list):
   return results
 
 if __name__ == "__main__":
-  ''' Run Esummary, get PubMed article data.
-      For each url, parse and ... 
+  ''' Run Esummary, get PubMed articles.
+      For each, parse and save as a dataframe.
   '''
   PMID_list= []
   doi_list = []

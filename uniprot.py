@@ -153,14 +153,14 @@ if __name__ == '__main__':
 
   if args.term:
     print(f"\nExtracting xml (as a dictionary) from a UniProt query, w/ command line args:\n")
-    #response = uni.make_request_xml
-    #xml_list = uni.parse_xml_response(response)
-    #done = uni.extract_xml(xml_list)
+    uni = UniProt(args.term, ext='.xml')
+    xml_dict = uni.make_request_xml
+    extracted = uni.extract_xml(xml_dict)
+    print(extracted)
   else:
     print(f"\nExtracting xml (as a dictionary) from a UniProt query, w/o command line args:\n")
+    arg = random.choice(uniprot_id_list)
     uni = UniProt(arg, ext='.xml')
     xml_dict = uni.make_request_xml
     extracted = uni.extract_xml(xml_dict)
     print(extracted)
-    #xml_list = uni.parse_xml_response(response)
-    #done = uni.extract_xml(xml_list)

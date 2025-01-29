@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-import uuid
+#import uuid
 
 class InformaticsCreate(BaseModel):
   resource: str
@@ -16,8 +16,9 @@ class InformaticsRepository:
     #self.counter = get_counter()
 
   def create_informatic(self, informatic: InformaticsCreate) -> Informatics:
-    #new_informatic = informatics(id=self.counter.increment(), **informatic.model_dump())
-    new_informatic = Informatics(id=uuid.uuid4().time, **informatic.model_dump())
+    # why does this line appear twice? Once in the repository and once in the service?
+    new_informatic = Informatics(id=self.counter.increment(), **informatic.model_dump())
+    #new_informatic = Informatics(id=uuid.uuid4().time, **informatic.model_dump())
     self.informatics.append(new_informatic)
     return new_informatic
 
